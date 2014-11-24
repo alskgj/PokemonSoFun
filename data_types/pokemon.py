@@ -58,6 +58,10 @@ class Pokemon(object):
 
         print("[{self.pokedex:0>3}]: {self.name}/{self.german_name}\n".format(**locals()))
 
+        print("Detailed info:")
+        print("http://pokemondb.net/pokedex/"+self.name.lower())
+        print()
+
         print(colored("Type analysis:", "blue"))
         # for each type
         for i, pt in enumerate(self.poke_types):
