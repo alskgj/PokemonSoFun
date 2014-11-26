@@ -3,6 +3,7 @@ __author__ = 'zen'
 import requests
 import sqlite3
 
+
 from bs4 import BeautifulSoup
 
 
@@ -36,7 +37,7 @@ def download_data(silent=True):
     con.commit()
     con.close()
 
-    print("\nDB written.")
+    print("\nSetup successful.")
 
 if __name__ == "__main__":
     download_data(silent=False)

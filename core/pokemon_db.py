@@ -3,6 +3,7 @@ __author__ = 'zen'
 import requests
 from bs4 import BeautifulSoup
 
+
 def pokemondb_lookup(pokemon):
     """
 
@@ -12,8 +13,7 @@ def pokemondb_lookup(pokemon):
     """
 
     url = "http://pokemondb.net/pokedex/"+pokemon.lower()
-    print("Online Pokedex:")
-    print(url)
+    print("Url: "+url)
     html = requests.get(url).content
     soup = BeautifulSoup(html)
 
@@ -49,12 +49,25 @@ def pokemondb_lookup(pokemon):
         elif effectiveness == "4":
             v_weak.add(pokemon_type)
 
+    # getting stats
+    stats = soup.find("h2", text="Base stats").parent
+    stat_dict = {
+        "hp": stats.find("th", text="HP").parent.td.text,
+        "attack": stats.find("th", text="Attack").parent.td.text,
+        "defense": stats.find("th", text="Defense").parent.td.text,
+        "s_attack": stats.find("th", text="Sp. Atk").parent.td.text,
+        "s_defense": stats.find("th", text="Sp. Def").parent.td.text,
+        "speed": stats.find("th", text="Speed").parent.td.text,
+        "total": stats.find("th", text="Total").parent.td.text
+    }
+
     answer_dict = {
         "type": types,
         "no_effect": no_effect,
         "v_resist": v_resist,
         "resist": resist,
         "weak": weak,
-        "v_weak": v_weak
+        "v_weak": v_weak,
+        "stats": stat_dict
     }
     return answer_dict
