@@ -3,7 +3,7 @@ __author__ = 'zen'
 import sqlite3
 
 
-def lookup(pokemon):
+def name_lookup(pokemon):
 
     if pokemon != "eF-eM" and pokemon != "UHaFnir":
         pokemon = pokemon.capitalize()  # does this work with every pokemon?

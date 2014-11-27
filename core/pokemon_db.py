@@ -21,6 +21,7 @@ def pokemondb_lookup(pokemon):
     # getting pokedex stuff (should we parse more here?)
     pokedex_data = soup.find("h2", text="Pokédex data").parent
     types = set(pokedex_data.find("th", text="Type").parent.td.text.split())
+    pokedex_number = int(pokedex_data.find("th", text="National №").parent.td.text)
 
     # getting weaknesses // resistances
     type_defenses = soup.find("h2", text="Type defenses").parent
@@ -62,12 +63,13 @@ def pokemondb_lookup(pokemon):
     }
 
     answer_dict = {
-        "type": types,
-        "no_effect": no_effect,
-        "v_resist": v_resist,
-        "resist": resist,
-        "weak": weak,
-        "v_weak": v_weak,
-        "stats": stat_dict
+        "type": list(types),
+        "no_effect": list(no_effect),
+        "v_resist": list(v_resist),
+        "resist": list(resist),
+        "weak": list(weak),
+        "v_weak": list(v_weak),
+        "stats": stat_dict,
+        "pokedex": pokedex_number
     }
     return answer_dict

@@ -1,6 +1,6 @@
 __author__ = 'zen'
 
-from Database.lookup import lookup
+from Database.name_lookup import name_lookup
 from core.pokemon_db import pokemondb_lookup
 from termcolor import colored
 
@@ -10,7 +10,7 @@ class Pokemon(object):
     def __init__(self, name):
 
         # get english data
-        lookup_result = lookup(name)
+        lookup_result = name_lookup(name)
         if not lookup_result:
             return
 

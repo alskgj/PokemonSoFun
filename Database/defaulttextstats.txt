@@ -1,0 +1,7 @@
+Hello there!
+Enter a pokemon at the top (english or german)
+and confirm with enter.
+
+Also look at that nice dragonite!
+Python is fun
+lalalala
