@@ -2,29 +2,25 @@ __author__ = 'zen'
 
 import sqlite3
 
-
 def name_lookup(pokemon):
-
-    if pokemon != "eF-eM" and pokemon != "UHaFnir":
-        pokemon = pokemon.capitalize()  # does this work with every pokemon?
     con = sqlite3.connect("storage.sqlite")
     cur = con.cursor()
 
-    cur.execute("SELECT * FROM pokemons WHERE german=(?)", (pokemon,))
-
+    # try without changing pokemon name
+    cur.execute("SELECT * FROM pokemons WHERE german=(?) OR english=(?)", (pokemon, pokemon))
     answer = cur.fetchone()
     if answer:
         pokedex, english, german = answer
-        #print(pokedex, english, german)
         return {"pokedex": pokedex, "english": english, "german": german}
 
+    # try with pokemon.capitalize()
     else:
-        cur.execute("SELECT * FROM pokemons WHERE english=(?)", (pokemon,))
+        pokemon = pokemon.capitalize()
+        cur.execute("SELECT * FROM pokemons WHERE german=(?) OR english=(?)", (pokemon, pokemon))
         answer = cur.fetchone()
 
     if answer:
         pokedex, english, german = answer
-        #print(pokedex, english, german)
         return {"pokedex": pokedex, "english": english, "german": german}
 
     else:
