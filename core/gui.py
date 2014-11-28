@@ -50,7 +50,7 @@ class Tesla1(Frame):
     def create_first_pokemon_widgets(self):
         # label - sprite
         png = PhotoImage(file="sprites/default.png")
-        self.sprite = Button(self, image=png, bg="LightYellow2", command=self.save_as_favorite)
+        self.sprite = Button(self, image=png, bg="LightYellow2", command=self.save_as_favorite, width=80)
         self.sprite.image = png  # prevent garbage collection?
 
         # label - stats
@@ -126,10 +126,10 @@ class Tesla1(Frame):
 
         self.type_defenses2 = Text(frame2, relief=RIDGE, height=12, width=70, bg="darkgray")
         self.type_defenses2.config(font=('consolas', 14))
-        self.type_defenses2.insert('1.0', open("Database/defaulttextstats.txt").read())
+        self.type_defenses2.insert('1.0', open("Database/defaulttextstats2.txt").read())
 
         png2 = PhotoImage(file="sprites/default.png")
-        self.sprite2 = Button(frame2, image=png2, bg="LightYellow3", command=self.delete_favorite)
+        self.sprite2 = Button(frame2, image=png2, bg="LightYellow3", command=self.delete_favorite, width=80)
         self.sprite2.image = png2  # prevent garbage collection?
 
     def create_favorites_widgets(self):
@@ -152,6 +152,7 @@ class Tesla1(Frame):
                 print(element)
                 fbutton.configure(command= (lambda pokemon=element: self.display_pokemon(pokemon, 2)))
             self.favs.append(fbutton)
+
 
     def test(self, button):
         print(button.pokemon)
