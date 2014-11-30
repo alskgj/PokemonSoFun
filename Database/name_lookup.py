@@ -24,6 +24,8 @@ def name_lookup(pokemon):
         return {"pokedex": pokedex, "english": english, "german": german}
 
     else:
+        print("[DEBUG]: lookup for ["+pokemon+"] failed")
+        print("[DEBUG]")
         print("No match found for: %s" % pokemon)
         return 0
 

@@ -6,7 +6,8 @@ from tkinter import *
 import os
 
 # refresh stuff
-download_data()
+if not "storage.sqlite":
+    download_data()
 
 # run gui forever
 root = Tk()
