@@ -1,6 +1,7 @@
 __author__ = 'zen'
 
 import sqlite3
+from binascii import hexlify
 
 def name_lookup(pokemon):
     con = sqlite3.connect("storage.sqlite")
@@ -24,8 +25,8 @@ def name_lookup(pokemon):
         return {"pokedex": pokedex, "english": english, "german": german}
 
     else:
-        print("[DEBUG]: lookup for ["+pokemon+"] failed")
-        print("[DEBUG]")
+        print("[DEBUG1]: lookup for ["+pokemon+"] failed")
+        print("[DEBUG2]: "+str(hexlify(pokemon.encode("UTF-8"))))
         print("No match found for: %s" % pokemon)
         return 0
 
