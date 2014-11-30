@@ -18,7 +18,7 @@ class Tesla1(Frame):
 
         # load all pokemon names ever!
         with open("Database/autocomplete_words", "rb") as fo:
-            self.pokemon_name_list = set([element.strip for element in fo.read().decode("UTF-8").split("\n")])
+            self.pokemon_name_list = set([element.strip() for element in fo.read().decode("UTF-8").split("\n")])
 
         # entry
         self.ent = Entry(self, width=50, relief=SUNKEN, font=('Courier New', 14, ))
