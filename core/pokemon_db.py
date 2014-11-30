@@ -13,6 +13,13 @@ def pokemondb_lookup(pokemon):
     """
 
     url = "http://pokemondb.net/pokedex/"+pokemon.lower()
+    url = url.replace("é", "e")
+    url = url.replace("'", "")
+    url = url.replace("mime jr.", "mime-jr")
+    url = url.replace("♂", "-m")
+    url = url.replace("♀", "-f")
+    url = url.replace("mr. mime", "mr-mime")
+
     print("Url: "+url)
     html = requests.get(url).content
     soup = BeautifulSoup(html)

@@ -8,6 +8,7 @@ import requests
 import sqlite3
 from json import dumps, loads
 from Database.download_pokemon_info import Downloader
+from shutil import copyfile
 
 
 class Tesla1(Frame):
@@ -15,10 +16,25 @@ class Tesla1(Frame):
         Frame.__init__(self, parent)
         self.pack(expand=YES, fill=BOTH)
 
+        # load all pokemon names ever!
+        with open("Database/autocomplete_words", "rb") as fo:
+            self.pokemon_name_list = set(fo.read().decode("UTF-8").split("\n"))
+
         # entry
         self.ent = Entry(self, width=50, relief=SUNKEN, font=('Courier New', 14, ))
         self.ent.insert(0, 'Enter Pokemon here [press enter to clear this]')
         self.ent.bind('<Return>', (lambda event: self.fetch()))
+
+        # autocomplete
+        self.autocomplete_display = Text(self, width=50, height=1, relief=SUNKEN, font=('Courier New', 14, ))
+        self.autocomplete_display.insert("1.0", "<No autocomplete suggestions>")
+        self.ent.bind('<FocusOut>', self.force_focus_on_entry)
+        self.ent.bind('<Key>', self.autocomplete)
+        self.ent.bind('<Tab>', self.do_autocomplete)
+        self.ent.bind('<Down>', self.autocomplete_down)
+        self.ent.bind('<Up>', self.autocomplete_down)
+        self.autocomplete_matches = list()
+        self.autocomplete_selected = ""
 
         # first pokemon
         self.create_first_pokemon_widgets()
@@ -31,7 +47,8 @@ class Tesla1(Frame):
 
         # first pokemon pack
         self.ent.pack(side=TOP, fill=X, expand=NO)
-        self.ent.focus()
+        self.ent.focus_set()
+        self.autocomplete_display.pack(side=TOP, fill=X, expand=NO)
         self.name_label.pack(side=TOP, fill=X, expand=NO)
         self.sprite.pack(side=RIGHT, fill=BOTH, expand=YES)
         self.stats.pack(side=LEFT, expand=YES, fill=BOTH)
@@ -47,6 +64,81 @@ class Tesla1(Frame):
         self.top_pokemon = None
         self.bot_pokemon = None
 
+    def force_focus_on_entry(self, event):
+        self.ent.focus_set()
+
+    def do_autocomplete(self, event):
+        pokemon = self.autocomplete_display.get('1.0', END).split()[1]
+
+        # no suggestion yet
+        if pokemon == "autocomplete":
+            return
+
+        self.ent.delete(0, END)
+        self.ent.insert(0, pokemon)
+        self.fetch()
+
+    def autocomplete(self, event):
+        text_entered = event.widget.get() + event.char
+        if event.char == " ":
+            text_entered = text_entered[:-1]
+
+        if event.char and ord(event.char) == 8:
+            if text_entered:
+                text_entered = text_entered[:-2]  # silly python adds " " for ord(8)
+
+        text_entered = text_entered.lower()
+        self.autocomplete_matches = list()  # clear
+        for element in self.pokemon_name_list:
+            if element.lower().startswith(text_entered):
+                self.autocomplete_matches.append(element)
+
+        if not self.autocomplete_matches:
+            return
+
+        match = self.autocomplete_matches[0]
+
+        self.autocomplete_selected = match
+        self.autocomplete_display_fill(match)
+
+    def autocomplete_down(self, event):
+
+        # return if list has lenght 1
+        if len(self.autocomplete_matches) == 1 or len(self.autocomplete_matches) == 0:
+            return
+        # prevent error from outofindex stuff
+
+        print(self.autocomplete_matches)
+        position = self.autocomplete_matches.index(self.autocomplete_selected)
+        if position == len(self.autocomplete_matches)-1:
+            position = 0
+        else:
+            # increase position
+            position += 1
+        self.autocomplete_selected = self.autocomplete_matches[position]
+        self.autocomplete_display_fill(self.autocomplete_selected)
+
+    def autocomplete_up(self, event):
+
+        # return if list has lenght 1
+        if len(self.autocomplete_matches) == 1 or len(self.autocomplete_matches) == 0:
+            return
+        # prevent error from outofindex stuff
+
+        position = self.autocomplete_matches.index(self.autocomplete_selected)
+
+        position -= 1
+        self.autocomplete_selected = self.autocomplete_matches[position]
+        self.autocomplete_display_fill(self.autocomplete_selected)
+
+
+    def autocomplete_display_fill(self, pokemon):
+        self.autocomplete_display.config(state=NORMAL)
+        self.autocomplete_display.delete("1.0", END)
+        output = "<Tab>: " + pokemon + " ({matches})".format(matches=len(self.autocomplete_matches))
+        self.autocomplete_display.insert("1.0", output)
+        self.autocomplete_display.configure(state=DISABLED)
+
     def create_first_pokemon_widgets(self):
         # label - sprite
         png = PhotoImage(file="sprites/default.png")
@@ -54,8 +146,8 @@ class Tesla1(Frame):
         self.sprite.image = png  # prevent garbage collection?
 
         # label - stats
-        self.stats = Text(self, relief=RIDGE, height=12, width=20, bg="darkgray")
-        self.stats.config(font=('consolas', 14))
+        self.stats = Text(self, relief=RIDGE, height=12, width=20, bg="black")
+        self.stats.config(font=('consolas', 16))
         self.stats.insert('1.0', "\nstats will be here\n")
 
         # label - name
@@ -65,7 +157,7 @@ class Tesla1(Frame):
 
         # label - type defenses
         self.type_defenses = Text(self, relief=RIDGE, height=12, width=70, bg="darkgray")
-        self.type_defenses.config(font=('consolas', 14))
+        self.type_defenses.config(font=('consolas', 16))
         self.type_defenses.insert('1.0', open("Database/defaulttextstats.txt").read())
 
     def save_as_favorite(self):
@@ -120,12 +212,12 @@ class Tesla1(Frame):
         self.name_label2 = Text(frame2, height=1, relief=SUNKEN, font=('consolas', 20, 'bold'), bg="wheat3")
         self.name_label2.insert('1.0', "old pokemon")
 
-        self.stats2 = Text(frame2, relief=RIDGE, height=12, width=20, bg="darkgray")
-        self.stats2.config(font=('consolas', 14))
+        self.stats2 = Text(frame2, relief=RIDGE, height=12, width=20, bg="black")
+        self.stats2.config(font=('consolas', 16))
         self.stats2.insert('1.0', "\nstats will be here\n")
 
         self.type_defenses2 = Text(frame2, relief=RIDGE, height=12, width=70, bg="darkgray")
-        self.type_defenses2.config(font=('consolas', 14))
+        self.type_defenses2.config(font=('consolas', 16))
         self.type_defenses2.insert('1.0', open("Database/defaulttextstats2.txt").read())
 
         png2 = PhotoImage(file="sprites/default.png")
@@ -149,22 +241,21 @@ class Tesla1(Frame):
             fbutton.pokemon = element # keep identifier
             fbutton.pack(side=RIGHT, fill=BOTH, expand=YES)
             if element != "default":
-                print(element)
                 fbutton.configure(command= (lambda pokemon=element: self.display_pokemon(pokemon, 2)))
             self.favs.append(fbutton)
-
-
-    def test(self, button):
-        print(button.pokemon)
 
     def fetch(self):
         input_value = self.ent.get()
         self.ent.delete(0, END)
 
+        if input_value == "SAVE ALL":
+            self.download_all()
+            return
+
+
         # look pokemon up
         lookup_result = name_lookup(input_value)
         if not lookup_result:
-            print("invalid")
             self.invalid_pokemon(input_value)
             return 0
         pkm = lookup_result["english"]
@@ -172,6 +263,14 @@ class Tesla1(Frame):
         # show pokemon
         self.display_pokemon(pkm, 1)
         self.ent.focus()
+
+    def download_all(self):
+        for pokemon in self.pokemon_name_list:
+            lookup_result = name_lookup(pokemon)
+            if not lookup_result:
+                continue
+            pkm = lookup_result["english"]
+            self.display_pokemon(pkm, 1)
 
     def display_pokemon(self, pokemon, place):
         """
@@ -263,9 +362,21 @@ class Tesla1(Frame):
         """
         pokemon = pokemon.lower()
         url = "http://pokemondb.net/sprites/"+pokemon
+        url = url.replace("é", "e")
+        url = url.replace("'", "")
+        url = url.replace("mime jr.", "mime-jr")
+        url = url.replace("♂", "-m")
+        url = url.replace("♀", "-f")
+        url = url.replace("mr. mime", "mr-mime")
+
         html = requests.get(url).content
         soup = BeautifulSoup(html)
-        image_url = soup.img["data-original"]
+        try:
+            image_url = soup.img["data-original"]
+        except TypeError:
+            copyfile("sprites/default.png", "sprites/"+pokemon+".png")
+            print("error with: "+url)
+            return
 
         url = image_url
         path = "sprites/"+pokemon+".png"
@@ -337,7 +448,7 @@ class Tesla1(Frame):
         elif value < 85:
             return "orange"
         elif value < 105:
-            return "green"
+            return "lime green"
         elif value < 140:
             return "cyan"
         else:
