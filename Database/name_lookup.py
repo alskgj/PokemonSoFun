@@ -4,6 +4,7 @@ import sqlite3
 from binascii import hexlify
 
 def name_lookup(pokemon):
+    pokemon = pokemon.strip()
     con = sqlite3.connect("storage.sqlite")
     cur = con.cursor()
 
