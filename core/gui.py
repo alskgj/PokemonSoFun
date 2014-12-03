@@ -21,12 +21,12 @@ class Tesla1(Frame):
             self.pokemon_name_list = set([element.strip() for element in fo.read().decode("UTF-8").split("\n")])
 
         # entry
-        self.ent = Entry(self, width=50, relief=SUNKEN, font=('Courier New', 14, ))
+        self.ent = Entry(self, relief=SUNKEN, font=('Courier New', 14, ))
         self.ent.insert(0, 'Enter Pokemon here [press enter to clear this]')
         self.ent.bind('<Return>', (lambda event: self.fetch()))
 
         # autocomplete
-        self.autocomplete_display = Text(self, width=50, height=1, relief=SUNKEN, font=('Courier New', 14, ))
+        self.autocomplete_display = Text(self, height=1, relief=SUNKEN, font=('Courier New', 14, ))
         self.autocomplete_display.insert("1.0", "<No autocomplete suggestions>")
         self.ent.bind('<FocusOut>', self.force_focus_on_entry)
         self.ent.bind('<Key>', self.autocomplete)
@@ -142,22 +142,22 @@ class Tesla1(Frame):
     def create_first_pokemon_widgets(self):
         # label - sprite
         png = PhotoImage(file="sprites/default.png")
-        self.sprite = Button(self, image=png, bg="LightYellow2", command=self.save_as_favorite, width=80)
+        self.sprite = Button(self, image=png, bg="LightYellow2", command=self.save_as_favorite, width=5)
         self.sprite.image = png  # prevent garbage collection?
 
         # label - stats
-        self.stats = Text(self, relief=RIDGE, height=12, width=20, bg="black")
-        self.stats.config(font=('consolas', 16))
-        self.stats.insert('1.0', "\nstats will be here\n")
+        self.stats = Text(self, relief=RIDGE, height=10, bg="gray5", width=10)
+        self.stats.config(font=('Helvetica', 14))
+        self.stats.insert('1.0', "-")
 
         # label - name
-        self.name_label = Text(self, height=1, relief=SUNKEN, width=10, bg="wheat2")
-        self.name_label.config(font=('consolas', 20, 'bold'))
+        self.name_label = Text(self, height=1, relief=SUNKEN, bg="wheat2", width=25)
+        self.name_label.config(font=('helvetica', 18))
         self.name_label.insert('1.0', "No pokemon selected")
 
         # label - type defenses
-        self.type_defenses = Text(self, relief=RIDGE, height=12, width=70, bg="darkgray")
-        self.type_defenses.config(font=('consolas', 16))
+        self.type_defenses = Text(self, relief=RIDGE, height=10, bg="darkgray", width=50)
+        self.type_defenses.config(font=('helvetica', 12))
         self.type_defenses.insert('1.0', open("Database/defaulttextstats.txt").read())
 
     def save_as_favorite(self):
@@ -209,19 +209,19 @@ class Tesla1(Frame):
         # copy name, stats, type defenses and sprite to widget below
         frame2 = Frame(self)
         frame2.pack(side=BOTTOM, expand=YES, fill=BOTH)
-        self.name_label2 = Text(frame2, height=1, relief=SUNKEN, font=('consolas', 20, 'bold'), bg="wheat3")
+        self.name_label2 = Text(frame2, height=1, relief=SUNKEN, font=('helvetica', 18), bg="wheat3", width=25)
         self.name_label2.insert('1.0', "old pokemon")
 
-        self.stats2 = Text(frame2, relief=RIDGE, height=12, width=20, bg="black")
-        self.stats2.config(font=('consolas', 16))
+        self.stats2 = Text(frame2, relief=RIDGE, height=10, bg="gray5", width=10)
+        self.stats2.config(font=('helvetica', 14))
         self.stats2.insert('1.0', "\nstats will be here\n")
 
-        self.type_defenses2 = Text(frame2, relief=RIDGE, height=12, width=70, bg="darkgray")
-        self.type_defenses2.config(font=('consolas', 16))
+        self.type_defenses2 = Text(frame2, relief=RIDGE, height=10, bg="darkgray", width=50)
+        self.type_defenses2.config(font=('helvetica', 12))
         self.type_defenses2.insert('1.0', open("Database/defaulttextstats2.txt").read())
 
         png2 = PhotoImage(file="sprites/default.png")
-        self.sprite2 = Button(frame2, image=png2, bg="LightYellow3", command=self.delete_favorite, width=80)
+        self.sprite2 = Button(frame2, image=png2, bg="LightYellow3", command=self.delete_favorite, width=5)
         self.sprite2.image = png2  # prevent garbage collection?
 
     def create_favorites_widgets(self):
@@ -232,9 +232,9 @@ class Tesla1(Frame):
         try:
             loaded = loads(open("favorites", "r").read())
         except FileNotFoundError:
-            loaded = ["default"] * 10
+            loaded = ["default"] * 6
 
-        for element in loaded:
+        for element in loaded[:6]:
             fav_image = PhotoImage(file="sprites/"+element+".png")
             fbutton = Button(frame3, image=fav_image, bg="wheat1")
             fbutton.image = fav_image
@@ -409,20 +409,21 @@ class Tesla1(Frame):
         # let's build our text
         text = list()
         text.append("")
-        text.append("HP:          "+str(hp))
-        text.append("Attack:      "+str(attack))
-        text.append("Defense:     "+str(defense))
-        text.append("Sp. Attack:  "+str(s_attack))
-        text.append("Sp. Defense: "+str(s_defense))
-        text.append("Speed:       "+str(speed))
+        text.append("HP:\t     "+str(hp))
+        text.append("Attack:\t     "+str(attack))
+        text.append("Defense:\t     "+str(defense))
+        text.append("Sp. Att:\t     "+str(s_attack))
+        text.append("Sp. Def:\t     "+str(s_defense))
+        text.append("Speed:\t     "+str(speed))
         text.append("")
-        text.append("Total:       "+str(total))
+        text.append("Total:\t     "+str(total))
 
         text = "\n".join(text)
         stats.insert("1.0", text)
 
         # let's color some stuff
         stats.tag_add("hp", '2.0', '2.30')
+        stats.tag_add("hp2", '2.5', '2.34')
         stats.tag_add("attack", '3.0', '3.30')
         stats.tag_add("defense", '4.0', '4.30')
         stats.tag_add("s_attack", '5.0', '5.30')
@@ -475,11 +476,16 @@ class Tesla1(Frame):
         # let's build our text
         text = list()
         text.append("")
-        text.append("No Effect:       " + ", ".join(no_effect))
-        text.append("Very resistant:  " + ", ".join(v_resist))
-        text.append("Resistant:       " + ", ".join(resist))
-        text.append("Weak:            " + ", ".join(weak))
-        text.append("Very weak:       " + ", ".join(v_weak))
+        text.append("")
+        text.append("No Effect:\t\t" + ", ".join(no_effect))
+        text.append("")
+        text.append("Very resistant:\t\t" + ", ".join(v_resist))
+        text.append("")
+        text.append("Resistant:\t\t" + ", ".join(resist))
+        text.append("")
+        text.append("Weak:\t\t" + ", ".join(weak))
+        text.append("")
+        text.append("Very weak:\t\t" + ", ".join(v_weak))
 
         text = "\n".join(text)
         type_defenses.insert("1.0", text)
