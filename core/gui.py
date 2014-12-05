@@ -125,6 +125,10 @@ class Tesla1(Frame):
         self.autocomplete_selected = self.autocomplete_matches[position]
         self.autocomplete_display_fill(self.autocomplete_selected)
 
+        self.autocomplete_list.delete("1.0", END)
+
+        self.autocomplete_list.insert("1.0", ", ".join(self.autocomplete_matches[position:position+10]))
+
     def autocomplete_up(self, event):
 
         # return if list has lenght 1
