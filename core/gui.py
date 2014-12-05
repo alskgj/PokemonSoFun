@@ -36,6 +36,9 @@ class Tesla1(Frame):
         self.autocomplete_matches = list()
         self.autocomplete_selected = ""
 
+        # autocomplete suggestions list
+        self.autocomplete_list = Text(self, height=1, relief=SUNKEN, font = ('Courier New', 12, ), bg="alice blue")
+
         # first pokemon
         self.create_first_pokemon_widgets()
 
@@ -49,6 +52,7 @@ class Tesla1(Frame):
         self.ent.pack(side=TOP, fill=X, expand=NO)
         self.ent.focus_set()
         self.autocomplete_display.pack(side=TOP, fill=X, expand=NO)
+        self.autocomplete_list.pack(side=TOP, fill=X, expand=NO)
         self.name_label.pack(side=TOP, fill=X, expand=NO)
         self.sprite.pack(side=RIGHT, fill=BOTH, expand=YES)
         self.stats.pack(side=LEFT, expand=YES, fill=BOTH)
@@ -101,6 +105,9 @@ class Tesla1(Frame):
         self.autocomplete_selected = match
         self.autocomplete_display_fill(match)
 
+        self.autocomplete_list.delete("1.0", END)
+        self.autocomplete_list.insert("1.0", ", ".join(self.autocomplete_matches[:10]))
+
     def autocomplete_down(self, event):
 
         # return if list has lenght 1
@@ -130,7 +137,6 @@ class Tesla1(Frame):
         position -= 1
         self.autocomplete_selected = self.autocomplete_matches[position]
         self.autocomplete_display_fill(self.autocomplete_selected)
-
 
     def autocomplete_display_fill(self, pokemon):
         self.autocomplete_display.config(state=NORMAL)
