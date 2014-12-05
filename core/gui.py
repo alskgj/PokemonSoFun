@@ -180,7 +180,7 @@ class Tesla1(Frame):
                 element.configure(image=fav_image, text=self.top_pokemon)
                 element.image = fav_image
                 element.pokemon = self.top_pokemon
-                element.configure(command=(lambda pokemon=self.top_pokemon: self.display_pokemon(pokemon, 2)))
+                element.configure(command=(lambda pokemon=self.top_pokemon: self.display_pokemon(pokemon, 2)), width=20)
                 break
 
         # save state to disc
@@ -232,11 +232,14 @@ class Tesla1(Frame):
         try:
             loaded = loads(open("favorites", "r").read())
         except FileNotFoundError:
-            loaded = ["default"] * 6
+            loaded = ["default"] * 8
 
-        for element in loaded[:6]:
+        if len(loaded)<8:
+            loaded = loaded+["default"]*(8-len(loaded))
+
+        for element in loaded[:8]:
             fav_image = PhotoImage(file="sprites/"+element+".png")
-            fbutton = Button(frame3, image=fav_image, bg="wheat1")
+            fbutton = Button(frame3, image=fav_image, bg="wheat1", width=20)
             fbutton.image = fav_image
             fbutton.pokemon = element # keep identifier
             fbutton.pack(side=RIGHT, fill=BOTH, expand=YES)
