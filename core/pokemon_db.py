@@ -22,8 +22,7 @@ def pokemondb_lookup(pokemon):
 
     print("Url: "+url)
     html = requests.get(url).content
-    soup = BeautifulSoup(html)
-
+    soup = BeautifulSoup(html, "lxml")
 
     # getting pokedex stuff (should we parse more here?)
     pokedex_data = soup.find("h2", text="Pokédex data").parent
@@ -35,8 +34,6 @@ def pokemondb_lookup(pokemon):
     v_resist, resist, v_weak, weak, no_effect = set(), set(), set(), set(), set()
 
     # getting abilities
-
-
     for element in type_defenses.find_all("td"):
         raw_data = element["title"]  # raw data example: 'Fire → Fire/Flying = not very effective'
         pokemon_type = raw_data.split()[0]

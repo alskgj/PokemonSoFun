@@ -1,5 +1,3 @@
-__author__ = 'zen'
-
 from bs4 import BeautifulSoup
 from tkinter import *
 from Database.name_lookup import name_lookup
@@ -7,8 +5,10 @@ import os.path
 import requests
 import sqlite3
 from json import dumps, loads
-from Database.download_pokemon_info import Downloader
+from Database.download_pokemon_info import download_info
 from shutil import copyfile
+from definitions import DATABASE_DIR, ROOT_DIR
+from Database.download_sprite import download_sprite
 
 
 class Tesla1(Frame):
@@ -16,8 +16,8 @@ class Tesla1(Frame):
         Frame.__init__(self, parent)
         self.pack(expand=YES, fill=BOTH)
 
-        # load all pokemon names ever!
-        with open("Database/autocomplete_words", "rb") as fo:
+        # load all pokemon names ever!  # TODO get this list from db so it stays fresh
+        with open(os.path.join(ROOT_DIR, "Database", "autocomplete_words"), "rb") as fo:
             self.pokemon_name_list = set([element.strip() for element in fo.read().decode("UTF-8").split("\n")])
 
         # entry
@@ -244,17 +244,18 @@ class Tesla1(Frame):
         except FileNotFoundError:
             loaded = ["default"] * 8
 
-        if len(loaded)<8:
+        if len(loaded) < 8:
             loaded = loaded+["default"]*(8-len(loaded))
 
+
         for element in loaded[:8]:
-            fav_image = PhotoImage(file="sprites/"+element+".png")
+            fav_image = PhotoImage(os.path.join(ROOT_DIR, "sprites", element+".png"))
             fbutton = Button(frame3, image=fav_image, bg="wheat1", width=20)
             fbutton.image = fav_image
             fbutton.pokemon = element # keep identifier
             fbutton.pack(side=RIGHT, fill=BOTH, expand=YES)
             if element != "default":
-                fbutton.configure(command= (lambda pokemon=element: self.display_pokemon(pokemon, 2)))
+                fbutton.configure(command=(lambda pokemon=element: self.display_pokemon(pokemon, 2)))
             self.favs.append(fbutton)
 
     def fetch(self):
@@ -264,7 +265,6 @@ class Tesla1(Frame):
         if input_value == "SAVE ALL":
             self.download_all()
             return
-
 
         # look pokemon up
         lookup_result = name_lookup(input_value)
@@ -280,6 +280,8 @@ class Tesla1(Frame):
     def download_all(self):
         for pokemon in self.pokemon_name_list:
             lookup_result = name_lookup(pokemon)
+            print(lookup_result)
+
             if not lookup_result:
                 continue
             pkm = lookup_result["english"]
@@ -334,9 +336,9 @@ class Tesla1(Frame):
     def update_pokemon_name(self, pokemon, place):
         # make sure db is updated and ready
         pokemon = pokemon.lower()
-        Downloader(pokemon)
+        download_info(pokemon)
 
-        con = sqlite3.connect("pokedex.sqlite")
+        con = sqlite3.connect(DATABASE_DIR)
         cur = con.cursor()
         cur.execute("SELECT * FROM pokedex WHERE name=(?)", (pokemon,))
 
@@ -364,48 +366,17 @@ class Tesla1(Frame):
 
             sprite = getattr(self, label)
             sprite.configure(image=png)
-            sprite.image=png
+            sprite.image = png
         else:
-            self.download_sprite(pokemon)
+            download_sprite(pokemon)
             self.redraw(pokemon, label)
-
-    def download_sprite(self, pokemon):
-        """
-        Saves a sprite of a pokemon to sprites/{pokename}.png
-        """
-        pokemon = pokemon.lower()
-        url = "http://pokemondb.net/sprites/"+pokemon
-        url = url.replace("é", "e")
-        url = url.replace("'", "")
-        url = url.replace("mime jr.", "mime-jr")
-        url = url.replace("♂", "-m")
-        url = url.replace("♀", "-f")
-        url = url.replace("mr. mime", "mr-mime")
-
-        html = requests.get(url).content
-        soup = BeautifulSoup(html)
-        try:
-            image_url = soup.img["data-original"]
-        except TypeError:
-            copyfile("sprites/default.png", "sprites/"+pokemon+".png")
-            print("error with: "+url)
-            return
-
-        url = image_url
-        path = "sprites/"+pokemon+".png"
-        image = requests.get(url)
-        if image.status_code != 200:
-            print(url)
-
-        open(path, "wb").write(image.content)
-        print("Saved sprite to "+path)
 
     def insert_stats(self, pokemon, label):
         # make sure db is updated and ready
         pokemon = pokemon.lower()
-        Downloader(pokemon)
+        download_info(pokemon)
 
-        con = sqlite3.connect("pokedex.sqlite")
+        con = sqlite3.connect(DATABASE_DIR)
         cur = con.cursor()
         cur.execute("SELECT * FROM pokedex WHERE name=(?)", (pokemon,))
 
@@ -471,9 +442,9 @@ class Tesla1(Frame):
     def update_defenses(self, pokemon, label):
         # make sure db is updated and ready
         pokemon = pokemon.lower()
-        Downloader(pokemon)
+        download_info(pokemon)
 
-        con = sqlite3.connect("pokedex.sqlite")
+        con = sqlite3.connect(DATABASE_DIR)
         cur = con.cursor()
         cur.execute("SELECT * FROM pokedex WHERE name=(?)", (pokemon,))
 
