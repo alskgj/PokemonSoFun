@@ -2,11 +2,9 @@ from bs4 import BeautifulSoup
 from tkinter import *
 from Database.name_lookup import name_lookup
 import os.path
-import requests
 import sqlite3
 from json import dumps, loads
 from Database.download_pokemon_info import download_info
-from shutil import copyfile
 from definitions import DATABASE_DIR, ROOT_DIR
 from Database.download_sprite import download_sprite
 
@@ -186,7 +184,8 @@ class Tesla1(Frame):
         for element in self.favs:
             # if there is an empty slot we save
             if element.pokemon == "default":
-                fav_image = PhotoImage(file="sprites/" + self.top_pokemon + ".png")
+                img_path = os.path.join(ROOT_DIR, "sprites", self.top_pokemon.lower()+".png")
+                fav_image = PhotoImage(file=img_path)
                 element.configure(image=fav_image, text=self.top_pokemon)
                 element.image = fav_image
                 element.pokemon = self.top_pokemon

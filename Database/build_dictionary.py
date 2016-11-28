@@ -24,7 +24,9 @@ def download_data(silent=True):
         rows = table.find_all("tr", style="background:#fff;")
         for row in rows:
             if "Egg" in row.text:
+                print("break")
                 break
+            print(row)
             row = [r.strip() for r in row.text.split("\n") if r.strip()]
             pokedex_id, english_name, german_name = row
 

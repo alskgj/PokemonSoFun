@@ -11,7 +11,7 @@ if not os.path.exists(os.path.join(DATABASE_DIR)):
 
 # run gui forever
 root = Tk()
-root.iconbitmap(os.path.realpath("Database/Ultra-Ball.ico"))
+# root.iconbitmap(os.path.realpath("Database/Ultra-Ball.ico"))
 root.title("Hi there!")
 
 t = Tesla1(root)
